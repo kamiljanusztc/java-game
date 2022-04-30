@@ -61,6 +61,10 @@ public class TicTacToe extends Application {
         Button button8 = new Button("21");
         Button button9 = new Button("22");
 
+//        for (int i = 0; i < 9; i++) {
+//            Button numberButton = new Button(String.valueOf(i + 1));
+//        }
+
         grid.add(button1, 0, 0);
         grid.add(button2, 1, 0);
         grid.add(button3, 2, 0);
@@ -72,6 +76,7 @@ public class TicTacToe extends Application {
         grid.add(button9, 2, 2);
 
         List<Button> buttons = new ArrayList<>();
+
         buttons.add(button1);
         buttons.add(button2);
         buttons.add(button3);
@@ -85,11 +90,7 @@ public class TicTacToe extends Application {
         EventHandler<MouseEvent> eventHandler = new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent e) {
-                Button clickedButton = new Button(String.valueOf(e.getSource()));
-                System.out.println("SPRAWDZENIE" + clickedButton);
-                clickedButton.setText("NOWY");
-                System.out.println("po zmianie" + clickedButton);
-//                button1.setText("X");
+                ((Button)e.getTarget()).setText("X");
             }
         };
 
