@@ -9,6 +9,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -20,8 +21,11 @@ import java.util.List;
 public class TicTacToe extends Application {
 
     private Image imageback = new Image("file:src/main/resources/background.jpg");
-    private Image circle = new Image("file:src/main/resources/circle.png");
-    private Image cross = new Image("file:src/main/resources/cross.png");
+    private Image imgCircle = new Image("file:src/main/resources/circle.png");
+    private Image imgCross = new Image("file:src/main/resources/cross.png");
+    private ImageView circle = new ImageView(imgCircle);
+    private ImageView cross = new ImageView(imgCross);
+
     private FlowPane buttons = new FlowPane(Orientation.HORIZONTAL);
 
     public static void main(String[] args) {
@@ -48,9 +52,6 @@ public class TicTacToe extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
 
-//        struktura rzedow i przekatnych
-//        TBD
-
         Button button1 = new Button("00");
         Button button2 = new Button("01");
         Button button3 = new Button("02");
@@ -61,9 +62,16 @@ public class TicTacToe extends Application {
         Button button8 = new Button("21");
         Button button9 = new Button("22");
 
-//        for (int i = 0; i < 9; i++) {
-//            Button numberButton = new Button(String.valueOf(i + 1));
-//        }
+        List<Button> buttons = new ArrayList<>();
+        buttons.add(button1);
+        buttons.add(button2);
+        buttons.add(button3);
+        buttons.add(button4);
+        buttons.add(button5);
+        buttons.add(button6);
+        buttons.add(button7);
+        buttons.add(button8);
+        buttons.add(button9);
 
         grid.add(button1, 0, 0);
         grid.add(button2, 1, 0);
@@ -75,55 +83,41 @@ public class TicTacToe extends Application {
         grid.add(button8, 1, 2);
         grid.add(button9, 2, 2);
 
-        List<Button> buttons = new ArrayList<>();
-
-        buttons.add(button1);
-        buttons.add(button2);
-        buttons.add(button3);
-        buttons.add(button4);
-        buttons.add(button5);
-        buttons.add(button6);
-        buttons.add(button7);
-        buttons.add(button8);
-        buttons.add(button9);
-
-        EventHandler<MouseEvent> eventHandler = new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent e) {
-                ((Button)e.getTarget()).setText("X");
-            }
-        };
-
        for (Button button : buttons) {
            button.setPrefSize(150, 150);
-           button.addEventFilter(MouseEvent.MOUSE_CLICKED, eventHandler);
-       }
-
-//        zbadanie, ktory button kliknal - dodac on click javafx
-
-
-//        user click i computer click function
-
-//        dodanie krzyzyka lub kolka do buttona
+           button.setText("N");
+           button.addEventFilter(MouseEvent.MOUSE_CLICKED, event -> handleUserClick(button
+           ));
+       };
 
 //        randomowe dodanie ruchu przez kompa
 //        zbadanie czy wygral czy przegral - 2 funkcje
+    }
+    List<Button> userSelection = new ArrayList<>();
+    List<Button> computerSelection = new ArrayList<>();
 
+    public void handleUserClick(Button button) {
 
+        if (button.getText().equals("N")) {
+            cross.setFitWidth(100);
+            cross.setFitHeight(100);
+            button.setGraphic(cross);
+            button.setText("X");
+        }
 
-//        ImageView circleImg = new ImageView(circle);
-//        ImageView crossImg = new ImageView(cross);
-//        buttons.getChildren().add(circleImg);
-//        buttons.getChildren().add(crossImg);
-//        circleImg.setFitHeight(100);
-//        circleImg.setFitWidth(100);
-//        crossImg.setFitHeight(100);
-//        crossImg.setFitWidth(100);
+        userSelection.add(button);
+        System.out.println("nowa tablica: " + userSelection.size());
+        handleComputerClick(button);
+    }
 
-//        grid.add(buttons, 0, 0, 3, 3);
+    public void handleComputerClick(Button button) {
+        if (!userSelection.contains(button)) {
+            button.setGraphic(circle);
+            computerSelection.add(button);
 
-
-
-
+        }
+//        if (!button.getText().equals("X")) {
+//            button.setGraphic(circle);
+//        }
     }
 }
