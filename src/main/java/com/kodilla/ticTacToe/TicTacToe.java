@@ -16,17 +16,18 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class TicTacToe extends Application {
 
     private Image imageback = new Image("file:src/main/resources/background.jpg");
     private Image imgCircle = new Image("file:src/main/resources/circle.png");
     private Image imgCross = new Image("file:src/main/resources/cross.png");
-    private ImageView circle = new ImageView(imgCircle);
-    private ImageView cross = new ImageView(imgCross);
 
     private FlowPane buttons = new FlowPane(Orientation.HORIZONTAL);
+    private List<Button> buttonList;
 
     public static void main(String[] args) {
         launch(args);
@@ -52,15 +53,15 @@ public class TicTacToe extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
 
-        Button button1 = new Button("00");
-        Button button2 = new Button("01");
-        Button button3 = new Button("02");
-        Button button4 = new Button("10");
-        Button button5 = new Button("11");
-        Button button6 = new Button("12");
-        Button button7 = new Button("20");
-        Button button8 = new Button("21");
-        Button button9 = new Button("22");
+        Button button1 = new Button("00", 0, 0);
+        Button button2 = new Button("01", 0, 1);
+        Button button3 = new Button("02", 0, 2);
+        Button button4 = new Button("10", 1, 0);
+        Button button5 = new Button("11", 1, 1);
+        Button button6 = new Button("12", 1, 2);
+        Button button7 = new Button("20", 2, 0);
+        Button button8 = new Button("21", 2, 1);
+        Button button9 = new Button("22", 2, 2);
 
         List<Button> buttons = new ArrayList<>();
         buttons.add(button1);
@@ -86,38 +87,57 @@ public class TicTacToe extends Application {
        for (Button button : buttons) {
            button.setPrefSize(150, 150);
            button.setText("N");
-           button.addEventFilter(MouseEvent.MOUSE_CLICKED, event -> handleUserClick(button
-           ));
+           button.addEventFilter(MouseEvent.MOUSE_CLICKED, event -> handleUserClick(button));
        };
 
-//        randomowe dodanie ruchu przez kompa
+       this.buttonList = buttons;
+
 //        zbadanie czy wygral czy przegral - 2 funkcje
     }
+
     List<Button> userSelection = new ArrayList<>();
     List<Button> computerSelection = new ArrayList<>();
 
     public void handleUserClick(Button button) {
-
-        if (button.getText().equals("N")) {
+//        if (button.getText().equals("N")) {
+//            cross.setFitWidth(100);
+//            cross.setFitHeight(100);
+//            button.setGraphic(cross);
+//            button.setText("X");
+//        }
+        if (button.isEmpty()) {
+            ImageView cross = new ImageView(imgCross);
             cross.setFitWidth(100);
             cross.setFitHeight(100);
             button.setGraphic(cross);
+            button.setState(State.CROSS);
             button.setText("X");
-        }
+            userSelection.add(button);
+            System.out.println("nowa tablica: " + userSelection.size());
 
-        userSelection.add(button);
-        System.out.println("nowa tablica: " + userSelection.size());
-        handleComputerClick(button);
+            //sprawdzasz czy jest koniec gry, wygrana lub remis - 2wymiarowa tablica buttonow
+
+            //ruch komputera
+            handleComputerClick();
+            //sprawdzasz czy jest koniec gry, wygrana lub remis
+        }
     }
 
-    public void handleComputerClick(Button button) {
-        if (!userSelection.contains(button)) {
-            button.setGraphic(circle);
-            computerSelection.add(button);
+    public void handleComputerClick() {
 
-        }
-//        if (!button.getText().equals("X")) {
-//            button.setGraphic(circle);
-//        }
+
+        final List<Button> availableButtons = this.buttonList.stream()
+                .filter(Button::isEmpty)
+                .collect(Collectors.toList());
+
+        Collections.shuffle(availableButtons);
+
+        Button button = availableButtons.get(0);
+        ImageView circle = new ImageView(imgCircle);
+        circle.setFitWidth(100);
+        circle.setFitHeight(100);
+        button.setGraphic(circle);
+        button.setState(State.CIRCLE);
+        button.setText("O");
     }
 }
