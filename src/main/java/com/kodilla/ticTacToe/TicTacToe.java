@@ -86,36 +86,29 @@ public class TicTacToe extends Application {
 
        for (Button button : buttons) {
            button.setPrefSize(150, 150);
-           button.setText("N");
            button.addEventFilter(MouseEvent.MOUSE_CLICKED, event -> handleUserClick(button));
        };
 
        this.buttonList = buttons;
-
-//        zbadanie czy wygral czy przegral - 2 funkcje
     }
 
     List<Button> userSelection = new ArrayList<>();
     List<Button> computerSelection = new ArrayList<>();
 
     public void handleUserClick(Button button) {
-//        if (button.getText().equals("N")) {
-//            cross.setFitWidth(100);
-//            cross.setFitHeight(100);
-//            button.setGraphic(cross);
-//            button.setText("X");
-//        }
+
         if (button.isEmpty()) {
             ImageView cross = new ImageView(imgCross);
             cross.setFitWidth(100);
             cross.setFitHeight(100);
             button.setGraphic(cross);
             button.setState(State.CROSS);
-            button.setText("X");
             userSelection.add(button);
-            System.out.println("nowa tablica: " + userSelection.size());
+            System.out.println("user tablica: " + userSelection.size());
 
-            //sprawdzasz czy jest koniec gry, wygrana lub remis - 2wymiarowa tablica buttonow
+            checkTheResult();
+
+            //sprawdzasz czy jest koniec gry, wygrana lub remis - 2 wymiarowa tablica buttonow
 
             //ruch komputera
             handleComputerClick();
@@ -124,20 +117,27 @@ public class TicTacToe extends Application {
     }
 
     public void handleComputerClick() {
+        // set computer move if 2 in row clicked
+        if (userSelection.size() <= 4) {
+            final List<Button> availableButtons = this.buttonList.stream()
+                    .filter(Button::isEmpty)
+                    .collect(Collectors.toList());
 
+            Collections.shuffle(availableButtons);
 
-        final List<Button> availableButtons = this.buttonList.stream()
-                .filter(Button::isEmpty)
-                .collect(Collectors.toList());
-
-        Collections.shuffle(availableButtons);
-
-        Button button = availableButtons.get(0);
-        ImageView circle = new ImageView(imgCircle);
-        circle.setFitWidth(100);
-        circle.setFitHeight(100);
-        button.setGraphic(circle);
-        button.setState(State.CIRCLE);
-        button.setText("O");
+            Button button = availableButtons.get(0);
+            ImageView circle = new ImageView(imgCircle);
+            circle.setFitWidth(100);
+            circle.setFitHeight(100);
+            button.setGraphic(circle);
+            button.setState(State.CIRCLE);
+            computerSelection.add(button);
+            System.out.println("komputer tablica: " + userSelection.size());
+        }
     }
+
+    public void checkTheResult() {
+
+    }
+
 }
