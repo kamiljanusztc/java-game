@@ -28,6 +28,7 @@ public class TicTacToe extends Application {
 
     private FlowPane buttons = new FlowPane(Orientation.HORIZONTAL);
     private List<Button> buttonList;
+    private boolean[][] movesArray = new boolean[3][3];
 
     public static void main(String[] args) {
         launch(args);
@@ -84,12 +85,13 @@ public class TicTacToe extends Application {
         grid.add(button8, 1, 2);
         grid.add(button9, 2, 2);
 
-       for (Button button : buttons) {
-           button.setPrefSize(150, 150);
-           button.addEventFilter(MouseEvent.MOUSE_CLICKED, event -> handleUserClick(button));
-       };
+        for (Button button : buttons) {
+            button.setPrefSize(150, 150);
+            button.addEventFilter(MouseEvent.MOUSE_CLICKED, event -> handleUserClick(button));
+        }
+        ;
 
-       this.buttonList = buttons;
+        this.buttonList = buttons;
     }
 
     List<Button> userSelection = new ArrayList<>();
@@ -118,6 +120,7 @@ public class TicTacToe extends Application {
 
     public void handleComputerClick() {
         // set computer move if 2 in row clicked
+
         if (userSelection.size() <= 4) {
             final List<Button> availableButtons = this.buttonList.stream()
                     .filter(Button::isEmpty)
@@ -138,6 +141,28 @@ public class TicTacToe extends Application {
 
     public void checkTheResult() {
 
+        userSelection.stream().forEach(button ->{
+            movesArray[button.getX()][button.getY()] = true;
+            System.out.println("button getX: " + button.getX() + "button getY: " + button.getY());
+        });
+
+        if (movesArray[0][0] && movesArray[0][1] && movesArray[0][2] ||
+                movesArray[1][0] && movesArray[1][1] && movesArray[1][2] ||
+                movesArray[2][0] && movesArray[2][1] && movesArray[2][2] ||
+                movesArray[0][0] && movesArray[1][0] && movesArray[2][0] ||
+                movesArray[0][1] && movesArray[1][1] && movesArray[2][1] ||
+                movesArray[0][2] && movesArray[1][2] && movesArray[2][2] ||
+                movesArray[0][0] && movesArray[1][1] && movesArray[2][2] ||
+                movesArray[2][0] && movesArray[1][1] && movesArray[0][2]
+        ) {
+            System.out.println("WINNER");
+        }
+
+        for (int i = 0; i <movesArray.length; i++) {
+            for (int j = 0; j <movesArray[i].length; j++) {
+                System.out.println("movesArray: " + movesArray);
+            }
+        }
     }
 
 }
