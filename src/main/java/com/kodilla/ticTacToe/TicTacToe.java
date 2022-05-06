@@ -1,13 +1,11 @@
 package com.kodilla.ticTacToe;
 
 import javafx.application.Application;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -28,7 +26,7 @@ public class TicTacToe extends Application {
 
     private FlowPane buttons = new FlowPane(Orientation.HORIZONTAL);
     private List<Button> buttonList;
-    private boolean[][] movesArray = new boolean[3][3];
+    private boolean[][] userMovesArray = new boolean[3][3];
 
     public static void main(String[] args) {
         launch(args);
@@ -88,8 +86,7 @@ public class TicTacToe extends Application {
         for (Button button : buttons) {
             button.setPrefSize(150, 150);
             button.addEventFilter(MouseEvent.MOUSE_CLICKED, event -> handleUserClick(button));
-        }
-        ;
+        };
 
         this.buttonList = buttons;
     }
@@ -108,61 +105,95 @@ public class TicTacToe extends Application {
             userSelection.add(button);
             System.out.println("user tablica: " + userSelection.size());
 
+            handleComputerClick();
+            //sprawdzasz czy jest koniec gry, wygrana lub remis - 2 wymiarowa tablica buttonow
             checkTheResult();
 
-            //sprawdzasz czy jest koniec gry, wygrana lub remis - 2 wymiarowa tablica buttonow
-
             //ruch komputera
-            handleComputerClick();
+//            handleComputerClick();
+
             //sprawdzasz czy jest koniec gry, wygrana lub remis
         }
     }
 
     public void handleComputerClick() {
-        // set computer move if 2 in row clicked
 
-        if (userSelection.size() <= 4) {
-            final List<Button> availableButtons = this.buttonList.stream()
-                    .filter(Button::isEmpty)
-                    .collect(Collectors.toList());
+        final List<Button> availableButtons = this.buttonList.stream()
+                .filter(Button::isEmpty)
+                .collect(Collectors.toList());
+        Collections.shuffle(availableButtons);
 
-            Collections.shuffle(availableButtons);
+        ImageView circle = new ImageView(imgCircle);
+        circle.setFitWidth(100);
+        circle.setFitHeight(100);
 
-            Button button = availableButtons.get(0);
-            ImageView circle = new ImageView(imgCircle);
-            circle.setFitWidth(100);
-            circle.setFitHeight(100);
-            button.setGraphic(circle);
-            button.setState(State.CIRCLE);
-            computerSelection.add(button);
-            System.out.println("komputer tablica: " + userSelection.size());
-        }
+        getNextComputerMove(availableButtons);
+        Button button = availableButtons.get(0);
+        button.setGraphic(circle);
+        button.setState(State.CIRCLE);
+
+
+
+//        if (userSelection.size() <=4) {
+//            button.setX(0);
+//            button.setY(2);
+//            button.setGraphic(circle);
+//            button.setState(State.CIRCLE);
+//            computerSelection.add(button);
+//        }
+
+        // zatrzymaj jesli user win
     }
 
     public void checkTheResult() {
 
-        userSelection.stream().forEach(button ->{
-            movesArray[button.getX()][button.getY()] = true;
-            System.out.println("button getX: " + button.getX() + "button getY: " + button.getY());
+        userSelection.stream().forEach(button -> {
+            userMovesArray[button.getX()][button.getY()] = true;
         });
 
-        if (movesArray[0][0] && movesArray[0][1] && movesArray[0][2] ||
-                movesArray[1][0] && movesArray[1][1] && movesArray[1][2] ||
-                movesArray[2][0] && movesArray[2][1] && movesArray[2][2] ||
-                movesArray[0][0] && movesArray[1][0] && movesArray[2][0] ||
-                movesArray[0][1] && movesArray[1][1] && movesArray[2][1] ||
-                movesArray[0][2] && movesArray[1][2] && movesArray[2][2] ||
-                movesArray[0][0] && movesArray[1][1] && movesArray[2][2] ||
-                movesArray[2][0] && movesArray[1][1] && movesArray[0][2]
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        if (
+                userMovesArray[0][0] && userMovesArray[0][1] && userMovesArray[0][2] ||
+                        userMovesArray[1][0] && userMovesArray[1][1] && userMovesArray[1][2] ||
+                        userMovesArray[2][0] && userMovesArray[2][1] && userMovesArray[2][2] ||
+                        userMovesArray[0][0] && userMovesArray[1][0] && userMovesArray[2][0] ||
+                        userMovesArray[0][1] && userMovesArray[1][1] && userMovesArray[2][1] ||
+                        userMovesArray[0][2] && userMovesArray[1][2] && userMovesArray[2][2] ||
+                        userMovesArray[0][0] && userMovesArray[1][1] && userMovesArray[2][2] ||
+                        userMovesArray[2][0] && userMovesArray[1][1] && userMovesArray[0][2]
         ) {
             System.out.println("WINNER");
+            alert.setTitle("Tic Tac Toe");
+            alert.setHeaderText("Congrats!");
+            alert.setContentText("You win!");
+            alert.showAndWait();
         }
 
-        for (int i = 0; i <movesArray.length; i++) {
-            for (int j = 0; j <movesArray[i].length; j++) {
-                System.out.println("movesArray: " + movesArray);
-            }
-        }
+//        for (int i = 0; i <movesArray.length; i++) {
+//            for (int j = 0; j <movesArray[i].length; j++) {
+//                System.out.println("movesArray: " + movesArray);
+//            }
+//        }
     }
 
+    public Button getNextComputerMove(List<Button> availableButtons) {
+
+        for (int i = 0; i < userMovesArray.length; i++) {
+            for (int j = 0; j < userMovesArray[i].length; j++) {
+                ImageView circle = new ImageView(imgCircle);
+
+                if (userMovesArray[0][0] && userMovesArray[0][1]) {
+                    availableButtons
+                            .stream()
+                            .filter(button -> button.getX() == 0 && button.getY() == 2);
+//                            .filter(button -> {
+//                                button.setGraphic(circle);
+//                                button.setState(State.CIRCLE);
+//                                return true;
+//                            });
+                }
+            }
+        }
+        return null;
+    }
 }
