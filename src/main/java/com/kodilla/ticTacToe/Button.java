@@ -41,4 +41,12 @@ public class Button extends javafx.scene.control.Button {
     public boolean isEmpty() {
         return this.state == State.EMPTY;
     }
+
+    public boolean isCross() {
+        return this.state == State.CROSS;
+    }
+
+    public boolean isCircle() {
+        return this.state == State.CIRCLE;
+    }
 }

@@ -25,7 +25,7 @@ public class TicTacToe extends Application {
     private Image imgCross = new Image("file:src/main/resources/cross.png");
 
     private FlowPane buttons = new FlowPane(Orientation.HORIZONTAL);
-    private List<Button> buttonList;
+    private Button[][] board;
     private boolean[][] userMovesArray = new boolean[3][3];
 
     public static void main(String[] args) {
@@ -62,16 +62,16 @@ public class TicTacToe extends Application {
         Button button8 = new Button("21", 2, 1);
         Button button9 = new Button("22", 2, 2);
 
-        List<Button> buttons = new ArrayList<>();
-        buttons.add(button1);
-        buttons.add(button2);
-        buttons.add(button3);
-        buttons.add(button4);
-        buttons.add(button5);
-        buttons.add(button6);
-        buttons.add(button7);
-        buttons.add(button8);
-        buttons.add(button9);
+        board = new Button[3][3];
+        board[0][0] = button1;
+        board[0][1] = button2;
+        board[0][2] = button3;
+        board[1][0] = button4;
+        board[1][1] = button5;
+        board[1][2] = button6;
+        board[2][0] = button7;
+        board[2][1] = button8;
+        board[2][2] = button9;
 
         grid.add(button1, 0, 0);
         grid.add(button2, 1, 0);
@@ -83,16 +83,16 @@ public class TicTacToe extends Application {
         grid.add(button8, 1, 2);
         grid.add(button9, 2, 2);
 
-        for (Button button : buttons) {
-            button.setPrefSize(150, 150);
-            button.addEventFilter(MouseEvent.MOUSE_CLICKED, event -> handleUserClick(button));
-        };
-
-        this.buttonList = buttons;
+        for (int i = 0; i < board.length; i++) {
+            for (int j = 0; j < board[i].length; j++) {
+                final Button button = board[i][j];
+                button.setPrefSize(150, 150);
+                button.addEventFilter(MouseEvent.MOUSE_CLICKED, event -> handleUserClick(button));
+            }
+        }
     }
 
     List<Button> userSelection = new ArrayList<>();
-    List<Button> computerSelection = new ArrayList<>();
 
     public void handleUserClick(Button button) {
 
@@ -106,43 +106,36 @@ public class TicTacToe extends Application {
             System.out.println("user tablica: " + userSelection.size());
 
             handleComputerClick();
-            //sprawdzasz czy jest koniec gry, wygrana lub remis - 2 wymiarowa tablica buttonow
             checkTheResult();
-
-            //ruch komputera
-//            handleComputerClick();
-
-            //sprawdzasz czy jest koniec gry, wygrana lub remis
         }
     }
 
     public void handleComputerClick() {
+        boolean moveMade = makeSmartMove();
 
-        final List<Button> availableButtons = this.buttonList.stream()
-                .filter(Button::isEmpty)
-                .collect(Collectors.toList());
+        if (moveMade) {
+            return;
+        }
+
+        final List<Button> availableButtons = new ArrayList<>();
+
+        for (int i = 0; i < board.length; i++) {
+            for (int j = 0; j < board[i].length; j++) {
+                if (board[i][j].isEmpty()) {
+                    availableButtons.add(board[i][j]);
+                }
+            }
+        }
+
         Collections.shuffle(availableButtons);
 
         ImageView circle = new ImageView(imgCircle);
         circle.setFitWidth(100);
         circle.setFitHeight(100);
 
-        getNextComputerMove(availableButtons);
         Button button = availableButtons.get(0);
         button.setGraphic(circle);
         button.setState(State.CIRCLE);
-
-
-
-//        if (userSelection.size() <=4) {
-//            button.setX(0);
-//            button.setY(2);
-//            button.setGraphic(circle);
-//            button.setState(State.CIRCLE);
-//            computerSelection.add(button);
-//        }
-
-        // zatrzymaj jesli user win
     }
 
     public void checkTheResult() {
@@ -176,24 +169,269 @@ public class TicTacToe extends Application {
 //        }
     }
 
-    public Button getNextComputerMove(List<Button> availableButtons) {
+    public boolean makeSmartMove() {
+        ImageView circle = new ImageView(imgCircle);
+        circle.setFitWidth(100);
+        circle.setFitHeight(100);
 
-        for (int i = 0; i < userMovesArray.length; i++) {
-            for (int j = 0; j < userMovesArray[i].length; j++) {
-                ImageView circle = new ImageView(imgCircle);
+//        COMPUTER SMART MOVE
 
-                if (userMovesArray[0][0] && userMovesArray[0][1]) {
-                    availableButtons
-                            .stream()
-                            .filter(button -> button.getX() == 0 && button.getY() == 2);
-//                            .filter(button -> {
-//                                button.setGraphic(circle);
-//                                button.setState(State.CIRCLE);
-//                                return true;
-//                            });
-                }
-            }
+//        first row
+        if (board[0][0].isCross() && board[0][1].isCross() && board[0][2].isEmpty() ) {
+            board[0][2].setState(State.CIRCLE);
+            board[0][2].setGraphic(circle);
+            return true;
         }
-        return null;
+        if (board[0][0].isCross() && board[0][2].isCross() && board[0][1].isEmpty() ) {
+            board[0][1].setState(State.CIRCLE);
+            board[0][1].setGraphic(circle);
+            return true;
+        }
+        if (board[0][1].isCross() && board[0][2].isCross() && board[0][0].isEmpty() ) {
+            board[0][0].setState(State.CIRCLE);
+            board[0][0].setGraphic(circle);
+            return true;
+        }
+//        second row
+        if (board[1][0].isCross() && board[1][1].isCross() && board[1][2].isEmpty() ) {
+            board[1][2].setState(State.CIRCLE);
+            board[1][2].setGraphic(circle);
+            return true;
+        }
+        if (board[1][0].isCross() && board[1][2].isCross() && board[1][1].isEmpty() ) {
+            board[1][1].setState(State.CIRCLE);
+            board[1][1].setGraphic(circle);
+            return true;
+        }
+        if (board[1][1].isCross() && board[1][2].isCross() && board[1][0].isEmpty() ) {
+            board[1][0].setState(State.CIRCLE);
+            board[1][0].setGraphic(circle);
+            return true;
+        }
+//        third row
+        if (board[2][0].isCross() && board[2][1].isCross() && board[2][2].isEmpty() ) {
+            board[2][2].setState(State.CIRCLE);
+            board[2][2].setGraphic(circle);
+            return true;
+        }
+        if (board[2][0].isCross() && board[2][2].isCross() && board[2][1].isEmpty() ) {
+            board[2][1].setState(State.CIRCLE);
+            board[2][1].setGraphic(circle);
+            return true;
+        }
+        if (board[2][1].isCross() && board[2][2].isCross() && board[2][0].isEmpty() ) {
+            board[2][0].setState(State.CIRCLE);
+            board[2][0].setGraphic(circle);
+            return true;
+        }
+//        first column
+        if (board[0][0].isCross() && board[1][0].isCross() && board[2][0].isEmpty() ) {
+            board[2][0].setState(State.CIRCLE);
+            board[2][0].setGraphic(circle);
+            return true;
+        }
+        if (board[0][0].isCross() && board[2][0].isCross() && board[1][0].isEmpty() ) {
+            board[1][0].setState(State.CIRCLE);
+            board[1][0].setGraphic(circle);
+            return true;
+        }
+        if (board[1][0].isCross() && board[2][0].isCross() && board[0][0].isEmpty() ) {
+            board[0][0].setState(State.CIRCLE);
+            board[0][0].setGraphic(circle);
+            return true;
+        }
+//        second column
+        if (board[0][1].isCross() && board[1][1].isCross() && board[2][1].isEmpty() ) {
+            board[2][1].setState(State.CIRCLE);
+            board[2][1].setGraphic(circle);
+            return true;
+        }
+        if (board[0][1].isCross() && board[2][1].isCross() && board[1][1].isEmpty() ) {
+            board[1][1].setState(State.CIRCLE);
+            board[1][1].setGraphic(circle);
+            return true;
+        }if (board[1][1].isCross() && board[2][1].isCross() && board[0][1].isEmpty() ) {
+            board[0][1].setState(State.CIRCLE);
+            board[0][1].setGraphic(circle);
+            return true;
+        }
+//        third column
+        if (board[0][2].isCross() && board[1][2].isCross() && board[2][2].isEmpty() ) {
+            board[2][2].setState(State.CIRCLE);
+            board[2][2].setGraphic(circle);
+            return true;
+        }
+        if (board[0][2].isCross() && board[2][2].isCross() && board[1][2].isEmpty() ) {
+            board[1][2].setState(State.CIRCLE);
+            board[1][2].setGraphic(circle);
+            return true;
+        }
+        if (board[1][2].isCross() && board[2][2].isCross() && board[0][2].isEmpty() ) {
+            board[0][2].setState(State.CIRCLE);
+            board[0][2].setGraphic(circle);
+            return true;
+        }
+//        diagonally
+        if (board[0][0].isCross() && board[1][1].isCross() && board[2][2].isEmpty() ) {
+            board[2][2].setState(State.CIRCLE);
+            board[2][2].setGraphic(circle);
+            return true;
+        }
+        if (board[0][0].isCross() && board[2][2].isCross() && board[1][1].isEmpty() ) {
+            board[1][1].setState(State.CIRCLE);
+            board[1][1].setGraphic(circle);
+            return true;
+        }
+        if (board[1][1].isCross() && board[2][2].isCross() && board[0][0].isEmpty() ) {
+            board[0][0].setState(State.CIRCLE);
+            board[0][0].setGraphic(circle);
+            return true;
+        }
+        if (board[2][0].isCross() && board[1][1].isCross() && board[0][2].isEmpty() ) {
+            board[0][2].setState(State.CIRCLE);
+            board[0][2].setGraphic(circle);
+            return true;
+        }
+        if (board[2][0].isCross() && board[0][2].isCross() && board[1][1].isEmpty() ) {
+            board[1][1].setState(State.CIRCLE);
+            board[1][1].setGraphic(circle);
+            return true;
+        }
+        if (board[1][1].isCross() && board[0][2].isCross() && board[2][0].isEmpty() ) {
+            board[2][0].setState(State.CIRCLE);
+            board[2][0].setGraphic(circle);
+            return true;
+        }
+
+//        COMPUTER WIN
+
+        //        first row
+        if (board[0][0].isCircle() && board[0][1].isCircle() && board[0][2].isEmpty() ) {
+            board[0][2].setState(State.CIRCLE);
+            board[0][2].setGraphic(circle);
+            return true;
+        }
+        if (board[0][0].isCircle() && board[0][2].isCircle() && board[0][1].isEmpty() ) {
+            board[0][1].setState(State.CIRCLE);
+            board[0][1].setGraphic(circle);
+            return true;
+        }
+        if (board[0][1].isCircle() && board[0][2].isCircle() && board[0][0].isEmpty() ) {
+            board[0][0].setState(State.CIRCLE);
+            board[0][0].setGraphic(circle);
+            return true;
+        }
+//        second row
+        if (board[1][0].isCircle() && board[1][1].isCircle() && board[1][2].isEmpty() ) {
+            board[1][2].setState(State.CIRCLE);
+            board[1][2].setGraphic(circle);
+            return true;
+        }
+        if (board[1][0].isCircle() && board[1][2].isCircle() && board[1][1].isEmpty() ) {
+            board[1][1].setState(State.CIRCLE);
+            board[1][1].setGraphic(circle);
+            return true;
+        }
+        if (board[1][1].isCircle() && board[1][2].isCircle() && board[1][0].isEmpty() ) {
+            board[1][0].setState(State.CIRCLE);
+            board[1][0].setGraphic(circle);
+            return true;
+        }
+//        third row
+        if (board[2][0].isCircle() && board[2][1].isCircle() && board[2][2].isEmpty() ) {
+            board[2][2].setState(State.CIRCLE);
+            board[2][2].setGraphic(circle);
+            return true;
+        }
+        if (board[2][0].isCircle() && board[2][2].isCircle() && board[2][1].isEmpty() ) {
+            board[2][1].setState(State.CIRCLE);
+            board[2][1].setGraphic(circle);
+            return true;
+        }
+        if (board[2][1].isCircle() && board[2][2].isCircle() && board[2][0].isEmpty() ) {
+            board[2][0].setState(State.CIRCLE);
+            board[2][0].setGraphic(circle);
+            return true;
+        }
+//        first column
+        if (board[0][0].isCircle() && board[1][0].isCircle() && board[2][0].isEmpty() ) {
+            board[2][0].setState(State.CIRCLE);
+            board[2][0].setGraphic(circle);
+            return true;
+        }
+        if (board[0][0].isCircle() && board[2][0].isCircle() && board[1][0].isEmpty() ) {
+            board[1][0].setState(State.CIRCLE);
+            board[1][0].setGraphic(circle);
+            return true;
+        }
+        if (board[1][0].isCircle() && board[2][0].isCircle() && board[0][0].isEmpty() ) {
+            board[0][0].setState(State.CIRCLE);
+            board[0][0].setGraphic(circle);
+            return true;
+        }
+//        second column
+        if (board[0][1].isCircle() && board[1][1].isCircle() && board[2][1].isEmpty() ) {
+            board[2][1].setState(State.CIRCLE);
+            board[2][1].setGraphic(circle);
+            return true;
+        }
+        if (board[0][1].isCircle() && board[2][1].isCircle() && board[1][1].isEmpty() ) {
+            board[1][1].setState(State.CIRCLE);
+            board[1][1].setGraphic(circle);
+            return true;
+        }if (board[1][1].isCircle() && board[2][1].isCircle() && board[0][1].isEmpty() ) {
+            board[0][1].setState(State.CIRCLE);
+            board[0][1].setGraphic(circle);
+            return true;
+        }
+//        third column
+        if (board[0][2].isCircle() && board[1][2].isCircle() && board[2][2].isEmpty() ) {
+            board[2][2].setState(State.CIRCLE);
+            board[2][2].setGraphic(circle);
+            return true;
+        }
+        if (board[0][2].isCircle() && board[2][2].isCircle() && board[1][2].isEmpty() ) {
+            board[1][2].setState(State.CIRCLE);
+            board[1][2].setGraphic(circle);
+            return true;
+        }
+        if (board[1][2].isCircle() && board[2][2].isCircle() && board[0][2].isEmpty() ) {
+            board[0][2].setState(State.CIRCLE);
+            board[0][2].setGraphic(circle);
+            return true;
+        }
+//        diagonally
+        if (board[0][0].isCircle() && board[1][1].isCircle() && board[2][2].isEmpty() ) {
+            board[2][2].setState(State.CIRCLE);
+            board[2][2].setGraphic(circle);
+            return true;
+        }
+        if (board[0][0].isCircle() && board[2][2].isCircle() && board[1][1].isEmpty() ) {
+            board[1][1].setState(State.CIRCLE);
+            board[1][1].setGraphic(circle);
+            return true;
+        }
+        if (board[1][1].isCircle() && board[2][2].isCircle() && board[0][0].isEmpty() ) {
+            board[0][0].setState(State.CIRCLE);
+            board[0][0].setGraphic(circle);
+            return true;
+        }
+        if (board[2][0].isCircle() && board[1][1].isCircle() && board[0][2].isEmpty() ) {
+            board[0][2].setState(State.CIRCLE);
+            board[0][2].setGraphic(circle);
+            return true;
+        }
+        if (board[2][0].isCircle() && board[0][2].isCircle() && board[1][1].isEmpty() ) {
+            board[1][1].setState(State.CIRCLE);
+            board[1][1].setGraphic(circle);
+            return true;
+        }
+        if (board[1][1].isCircle() && board[0][2].isCircle() && board[2][0].isEmpty() ) {
+            board[2][0].setState(State.CIRCLE);
+            board[2][0].setGraphic(circle);
+            return true;
+        }
+
+        return false;
     }
 }
