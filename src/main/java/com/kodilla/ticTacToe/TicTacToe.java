@@ -16,7 +16,6 @@ import javafx.stage.Stage;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class TicTacToe extends Application {
 
@@ -24,9 +23,9 @@ public class TicTacToe extends Application {
     private Image imgCircle = new Image("file:src/main/resources/circle.png");
     private Image imgCross = new Image("file:src/main/resources/cross.png");
 
-    private FlowPane buttons = new FlowPane(Orientation.HORIZONTAL);
     private Button[][] board;
-    private boolean[][] userMovesArray = new boolean[3][3];
+
+    Alert alert = new Alert(Alert.AlertType.INFORMATION);
 
     public static void main(String[] args) {
         launch(args);
@@ -106,11 +105,22 @@ public class TicTacToe extends Application {
             System.out.println("user tablica: " + userSelection.size());
 
             handleComputerClick();
-            checkTheResult();
+            if (checkTheResult()) {
+                for (int i = 0; i < board.length; i++) {
+                    for (int j = 0; j < board[i].length; j++) {
+                        board[i][j].setState(State.EMPTY);
+                        board[i][j].setGraphic(null);
+                    }
+                }
+            }
+//            handleComputerClick();
+//            checkTheResult();
+
         }
     }
 
     public void handleComputerClick() {
+
         boolean moveMade = makeSmartMove();
 
         if (moveMade) {
@@ -127,6 +137,16 @@ public class TicTacToe extends Application {
             }
         }
 
+        if (computerWin()) {
+            for (int i = 0; i < board.length; i++) {
+                for (int j = 0; j < board[i].length; j++) {
+                    board[i][j].setState(State.EMPTY);
+                    board[i][j].setGraphic(null);
+                }
+            }
+            return;
+        }
+
         Collections.shuffle(availableButtons);
 
         ImageView circle = new ImageView(imgCircle);
@@ -138,35 +158,26 @@ public class TicTacToe extends Application {
         button.setState(State.CIRCLE);
     }
 
-    public void checkTheResult() {
+    public boolean checkTheResult() {
 
-        userSelection.stream().forEach(button -> {
-            userMovesArray[button.getX()][button.getY()] = true;
-        });
-
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
         if (
-                userMovesArray[0][0] && userMovesArray[0][1] && userMovesArray[0][2] ||
-                        userMovesArray[1][0] && userMovesArray[1][1] && userMovesArray[1][2] ||
-                        userMovesArray[2][0] && userMovesArray[2][1] && userMovesArray[2][2] ||
-                        userMovesArray[0][0] && userMovesArray[1][0] && userMovesArray[2][0] ||
-                        userMovesArray[0][1] && userMovesArray[1][1] && userMovesArray[2][1] ||
-                        userMovesArray[0][2] && userMovesArray[1][2] && userMovesArray[2][2] ||
-                        userMovesArray[0][0] && userMovesArray[1][1] && userMovesArray[2][2] ||
-                        userMovesArray[2][0] && userMovesArray[1][1] && userMovesArray[0][2]
+                board[0][0].isCross() && board[0][1].isCross() && board[0][2].isCross() ||
+                        board[1][0].isCross() && board[1][1].isCross() && board[1][2].isCross() ||
+                        board[2][0].isCross() && board[2][1].isCross() && board[2][2].isCross() ||
+                        board[0][0].isCross() && board[1][0].isCross() && board[2][0].isCross() ||
+                        board[0][1].isCross() && board[1][1].isCross() && board[2][1].isCross() ||
+                        board[0][2].isCross() && board[1][2].isCross() && board[2][2].isCross() ||
+                        board[0][0].isCross() && board[1][1].isCross() && board[2][2].isCross() ||
+                        board[2][0].isCross() && board[1][1].isCross() && board[0][2].isCross()
         ) {
             System.out.println("WINNER");
             alert.setTitle("Tic Tac Toe");
             alert.setHeaderText("Congrats!");
             alert.setContentText("You win!");
             alert.showAndWait();
+            return true;
         }
-
-//        for (int i = 0; i <movesArray.length; i++) {
-//            for (int j = 0; j <movesArray[i].length; j++) {
-//                System.out.println("movesArray: " + movesArray);
-//            }
-//        }
+        return false;
     }
 
     public boolean makeSmartMove() {
@@ -302,6 +313,13 @@ public class TicTacToe extends Application {
             board[2][0].setGraphic(circle);
             return true;
         }
+        return false;
+    }
+
+    public boolean computerWin() {
+        ImageView circle = new ImageView(imgCircle);
+        circle.setFitWidth(100);
+        circle.setFitHeight(100);
 
 //        COMPUTER WIN
 
@@ -309,128 +327,256 @@ public class TicTacToe extends Application {
         if (board[0][0].isCircle() && board[0][1].isCircle() && board[0][2].isEmpty() ) {
             board[0][2].setState(State.CIRCLE);
             board[0][2].setGraphic(circle);
+            System.out.println("LOSE");
+            alert.setTitle("Tic Tac Toe");
+            alert.setHeaderText("Computer win");
+            alert.setContentText("Try again");
+            alert.showAndWait();
             return true;
         }
         if (board[0][0].isCircle() && board[0][2].isCircle() && board[0][1].isEmpty() ) {
             board[0][1].setState(State.CIRCLE);
             board[0][1].setGraphic(circle);
+            System.out.println("LOSE");
+            alert.setTitle("Tic Tac Toe");
+            alert.setHeaderText("Computer win");
+            alert.setContentText("Try again");
+            alert.showAndWait();
             return true;
         }
         if (board[0][1].isCircle() && board[0][2].isCircle() && board[0][0].isEmpty() ) {
             board[0][0].setState(State.CIRCLE);
             board[0][0].setGraphic(circle);
+            System.out.println("LOSE");
+            alert.setTitle("Tic Tac Toe");
+            alert.setHeaderText("Computer win");
+            alert.setContentText("Try again");
+            alert.showAndWait();
             return true;
         }
 //        second row
         if (board[1][0].isCircle() && board[1][1].isCircle() && board[1][2].isEmpty() ) {
             board[1][2].setState(State.CIRCLE);
             board[1][2].setGraphic(circle);
+            System.out.println("LOSE");
+            alert.setTitle("Tic Tac Toe");
+            alert.setHeaderText("Computer win");
+            alert.setContentText("Try again");
+            alert.showAndWait();
             return true;
         }
         if (board[1][0].isCircle() && board[1][2].isCircle() && board[1][1].isEmpty() ) {
             board[1][1].setState(State.CIRCLE);
             board[1][1].setGraphic(circle);
+            System.out.println("LOSE");
+            alert.setTitle("Tic Tac Toe");
+            alert.setHeaderText("Computer win");
+            alert.setContentText("Try again");
+            alert.showAndWait();
             return true;
         }
         if (board[1][1].isCircle() && board[1][2].isCircle() && board[1][0].isEmpty() ) {
             board[1][0].setState(State.CIRCLE);
             board[1][0].setGraphic(circle);
+            System.out.println("LOSE");
+            alert.setTitle("Tic Tac Toe");
+            alert.setHeaderText("Computer win");
+            alert.setContentText("Try again");
+            alert.showAndWait();
             return true;
         }
 //        third row
         if (board[2][0].isCircle() && board[2][1].isCircle() && board[2][2].isEmpty() ) {
             board[2][2].setState(State.CIRCLE);
             board[2][2].setGraphic(circle);
+            System.out.println("LOSE");
+            alert.setTitle("Tic Tac Toe");
+            alert.setHeaderText("Computer win");
+            alert.setContentText("Try again");
+            alert.showAndWait();
             return true;
         }
         if (board[2][0].isCircle() && board[2][2].isCircle() && board[2][1].isEmpty() ) {
             board[2][1].setState(State.CIRCLE);
             board[2][1].setGraphic(circle);
+            System.out.println("LOSE");
+            alert.setTitle("Tic Tac Toe");
+            alert.setHeaderText("Computer win");
+            alert.setContentText("Try again");
+            alert.showAndWait();
             return true;
         }
         if (board[2][1].isCircle() && board[2][2].isCircle() && board[2][0].isEmpty() ) {
             board[2][0].setState(State.CIRCLE);
             board[2][0].setGraphic(circle);
+            System.out.println("LOSE");
+            alert.setTitle("Tic Tac Toe");
+            alert.setHeaderText("Computer win");
+            alert.setContentText("Try again");
+            alert.showAndWait();
             return true;
         }
 //        first column
         if (board[0][0].isCircle() && board[1][0].isCircle() && board[2][0].isEmpty() ) {
             board[2][0].setState(State.CIRCLE);
             board[2][0].setGraphic(circle);
+            System.out.println("LOSE");
+            alert.setTitle("Tic Tac Toe");
+            alert.setHeaderText("Computer win");
+            alert.setContentText("Try again");
+            alert.showAndWait();
             return true;
         }
         if (board[0][0].isCircle() && board[2][0].isCircle() && board[1][0].isEmpty() ) {
             board[1][0].setState(State.CIRCLE);
             board[1][0].setGraphic(circle);
+            System.out.println("LOSE");
+            alert.setTitle("Tic Tac Toe");
+            alert.setHeaderText("Computer win");
+            alert.setContentText("Try again");
+            alert.showAndWait();
             return true;
         }
         if (board[1][0].isCircle() && board[2][0].isCircle() && board[0][0].isEmpty() ) {
             board[0][0].setState(State.CIRCLE);
             board[0][0].setGraphic(circle);
+            System.out.println("LOSE");
+            alert.setTitle("Tic Tac Toe");
+            alert.setHeaderText("Computer win");
+            alert.setContentText("Try again");
+            alert.showAndWait();
             return true;
         }
 //        second column
         if (board[0][1].isCircle() && board[1][1].isCircle() && board[2][1].isEmpty() ) {
             board[2][1].setState(State.CIRCLE);
             board[2][1].setGraphic(circle);
+            System.out.println("LOSE");
+            alert.setTitle("Tic Tac Toe");
+            alert.setHeaderText("Computer win");
+            alert.setContentText("Try again");
+            alert.showAndWait();
             return true;
         }
         if (board[0][1].isCircle() && board[2][1].isCircle() && board[1][1].isEmpty() ) {
             board[1][1].setState(State.CIRCLE);
             board[1][1].setGraphic(circle);
+            System.out.println("LOSE");
+            alert.setTitle("Tic Tac Toe");
+            alert.setHeaderText("Computer win");
+            alert.setContentText("Try again");
+            alert.showAndWait();
             return true;
         }if (board[1][1].isCircle() && board[2][1].isCircle() && board[0][1].isEmpty() ) {
             board[0][1].setState(State.CIRCLE);
             board[0][1].setGraphic(circle);
+            System.out.println("LOSE");
+            alert.setTitle("Tic Tac Toe");
+            alert.setHeaderText("Computer win");
+            alert.setContentText("Try again");
+            alert.showAndWait();
             return true;
         }
 //        third column
         if (board[0][2].isCircle() && board[1][2].isCircle() && board[2][2].isEmpty() ) {
             board[2][2].setState(State.CIRCLE);
             board[2][2].setGraphic(circle);
+            System.out.println("LOSE");
+            alert.setTitle("Tic Tac Toe");
+            alert.setHeaderText("Computer win");
+            alert.setContentText("Try again");
+            alert.showAndWait();
             return true;
         }
         if (board[0][2].isCircle() && board[2][2].isCircle() && board[1][2].isEmpty() ) {
             board[1][2].setState(State.CIRCLE);
             board[1][2].setGraphic(circle);
+            System.out.println("LOSE");
+            alert.setTitle("Tic Tac Toe");
+            alert.setHeaderText("Computer win");
+            alert.setContentText("Try again");
+            alert.showAndWait();
             return true;
         }
         if (board[1][2].isCircle() && board[2][2].isCircle() && board[0][2].isEmpty() ) {
             board[0][2].setState(State.CIRCLE);
             board[0][2].setGraphic(circle);
+            System.out.println("LOSE");
+            alert.setTitle("Tic Tac Toe");
+            alert.setHeaderText("Computer win");
+            alert.setContentText("Try again");
+            alert.showAndWait();
             return true;
         }
 //        diagonally
         if (board[0][0].isCircle() && board[1][1].isCircle() && board[2][2].isEmpty() ) {
             board[2][2].setState(State.CIRCLE);
             board[2][2].setGraphic(circle);
+            System.out.println("LOSE");
+            alert.setTitle("Tic Tac Toe");
+            alert.setHeaderText("Computer win");
+            alert.setContentText("Try again");
+            alert.showAndWait();
             return true;
         }
         if (board[0][0].isCircle() && board[2][2].isCircle() && board[1][1].isEmpty() ) {
             board[1][1].setState(State.CIRCLE);
             board[1][1].setGraphic(circle);
+            System.out.println("LOSE");
+            alert.setTitle("Tic Tac Toe");
+            alert.setHeaderText("Computer win");
+            alert.setContentText("Try again");
+            alert.showAndWait();
             return true;
         }
         if (board[1][1].isCircle() && board[2][2].isCircle() && board[0][0].isEmpty() ) {
             board[0][0].setState(State.CIRCLE);
             board[0][0].setGraphic(circle);
+            System.out.println("LOSE");
+            alert.setTitle("Tic Tac Toe");
+            alert.setHeaderText("Computer win");
+            alert.setContentText("Try again");
+            alert.showAndWait();
             return true;
         }
         if (board[2][0].isCircle() && board[1][1].isCircle() && board[0][2].isEmpty() ) {
             board[0][2].setState(State.CIRCLE);
             board[0][2].setGraphic(circle);
+            System.out.println("LOSE");
+            alert.setTitle("Tic Tac Toe");
+            alert.setHeaderText("Computer win");
+            alert.setContentText("Try again");
+            alert.showAndWait();
             return true;
         }
         if (board[2][0].isCircle() && board[0][2].isCircle() && board[1][1].isEmpty() ) {
             board[1][1].setState(State.CIRCLE);
             board[1][1].setGraphic(circle);
+            System.out.println("LOSE");
+            alert.setTitle("Tic Tac Toe");
+            alert.setHeaderText("Computer win");
+            alert.setContentText("Try again");
+            alert.showAndWait();
             return true;
         }
         if (board[1][1].isCircle() && board[0][2].isCircle() && board[2][0].isEmpty() ) {
             board[2][0].setState(State.CIRCLE);
             board[2][0].setGraphic(circle);
+            System.out.println("LOSE");
+            alert.setTitle("Tic Tac Toe");
+            alert.setHeaderText("Computer win");
+            alert.setContentText("Try again");
+            alert.showAndWait();
             return true;
         }
+
+//        else if () {
+//            System.out.println("DRAW");
+//            alert.setTitle("Tic Tac Toe");
+//            alert.setHeaderText("It's a draw!");
+//            alert.setContentText("Try again");
+//            alert.showAndWait();
+//        }
 
         return false;
     }
