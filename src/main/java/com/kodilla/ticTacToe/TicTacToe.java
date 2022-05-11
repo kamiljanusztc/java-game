@@ -5,6 +5,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -15,6 +16,7 @@ import javafx.stage.Stage;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 public class TicTacToe extends Application {
 
@@ -25,6 +27,7 @@ public class TicTacToe extends Application {
     private Button[][] board;
 
     Alert alert = new Alert(Alert.AlertType.INFORMATION);
+    Alert alert1 = new Alert(Alert.AlertType.CONFIRMATION);
 
     public static void main(String[] args) {
         launch(args);
@@ -87,6 +90,21 @@ public class TicTacToe extends Application {
                 button.setPrefSize(150, 150);
                 button.addEventFilter(MouseEvent.MOUSE_CLICKED, event -> handleUserClick(button));
             }
+        }
+
+        alert1.setTitle("TIC TAC TOE");
+        alert1.setHeaderText("Welcome!");
+        alert1.setResizable(false);
+        alert1.setContentText("Would you like to start the game?");
+
+        Optional<ButtonType> result = alert1.showAndWait();
+        ButtonType buttonStart = result.orElse(ButtonType.CANCEL);
+
+        if (buttonStart == ButtonType.OK) {
+            System.out.println("Ok pressed");
+        } else {
+            System.out.println("canceled");
+            primaryStage.close();
         }
     }
 
@@ -565,4 +583,17 @@ public class TicTacToe extends Application {
         return false;
     }
 
+//    public boolean draw() {
+//
+//        for (int i = 0; i < board.length; i++) {
+//            for (int j = 0; j < board[i].length; j++) {
+//                if (board[i][j].getState() != State.EMPTY && !computerWin() && !userWin()) {
+//                    board[i][j].setState(State.EMPTY);
+//                    board[i][j].setGraphic(null);
+//                    return true;
+//                }
+//            }
+//        }
+//        return false;
+//    }
 }
