@@ -84,9 +84,8 @@ public class TicTacToe extends Application {
         grid.add(button8, 1, 2);
         grid.add(button9, 2, 2);
 
-        for (int i = 0; i < board.length; i++) {
-            for (int j = 0; j < board[i].length; j++) {
-                final Button button = board[i][j];
+        for (Button[] buttons : board) {
+            for (final Button button : buttons) {
                 button.setPrefSize(150, 150);
                 button.addEventFilter(MouseEvent.MOUSE_CLICKED, event -> handleUserClick(button));
             }
@@ -109,38 +108,58 @@ public class TicTacToe extends Application {
     }
 
     List<Button> userSelection = new ArrayList<>();
+    List<Button> computerSelection = new ArrayList<>();
 
     public void handleUserClick(Button button) {
-
         if (button.isEmpty()) {
-            ImageView cross = new ImageView(imgCross);
-            cross.setFitWidth(100);
-            cross.setFitHeight(100);
-            button.setGraphic(cross);
-            button.setState(State.CROSS);
+            drawUserSymbol(button);
             userSelection.add(button);
+            if (userWin()) {
+                clearBoard();
+            } else if (isBoardFull()) {
+                handleDraw();
+                System.out.println("DRAW");
+            }
 
             handleComputerClick();
-            if (userWin()) {
-                for (int i = 0; i < board.length; i++) {
-                    for (int j = 0; j < board[i].length; j++) {
-                        board[i][j].setState(State.EMPTY);
-                        board[i][j].setGraphic(null);
-                    }
-                }
+        }
+    }
+
+    public void handleDraw() {
+        System.out.println("DRAW");
+        alert.setTitle("Tic Tac Toe");
+        alert.setHeaderText("It's a draw!");
+        alert.setContentText("Try again!");
+        alert.showAndWait();
+        clearBoard();
+    }
+
+    public boolean isBoardFull() {
+        System.out.println("ile jest w computer selection: " + computerSelection.size());
+        System.out.println("ile jest w user selection: " + userSelection.size());
+        return userSelection.size() + computerSelection.size() == 9;
+    }
+
+    private void drawUserSymbol(Button button) {
+        ImageView cross = new ImageView(imgCross);
+        cross.setFitWidth(100);
+        cross.setFitHeight(100);
+        button.setGraphic(cross);
+        button.setState(State.CROSS);
+    }
+
+    private void clearBoard() {
+        for (Button[] buttons : board) {
+            for (Button button : buttons) {
+                button.setState(State.EMPTY);
+                button.setGraphic(null);
             }
         }
     }
 
     public void handleComputerClick() {
-
         if (computerWin()) {
-            for (int i = 0; i < board.length; i++) {
-                for (int j = 0; j < board[i].length; j++) {
-                    board[i][j].setState(State.EMPTY);
-                    board[i][j].setGraphic(null);
-                }
-            }
+            clearBoard();
             return;
         }
 
@@ -149,26 +168,28 @@ public class TicTacToe extends Application {
         if (moveMade) {
             return;
         }
+         else {
+            final List<Button> availableButtons = new ArrayList<>();
 
-        final List<Button> availableButtons = new ArrayList<>();
-
-        for (int i = 0; i < board.length; i++) {
-            for (int j = 0; j < board[i].length; j++) {
-                if (board[i][j].isEmpty()) {
-                    availableButtons.add(board[i][j]);
+            for (Button[] buttons : board) {
+                for (Button button : buttons) {
+                    if (button.isEmpty()) {
+                        availableButtons.add(button);
+                    }
                 }
             }
+
+            Collections.shuffle(availableButtons);
+
+            ImageView circle = new ImageView(imgCircle);
+            circle.setFitWidth(100);
+            circle.setFitHeight(100);
+
+            Button button = availableButtons.get(0);
+            button.setGraphic(circle);
+            button.setState(State.CIRCLE);
+            computerSelection.add(button);
         }
-
-        Collections.shuffle(availableButtons);
-
-        ImageView circle = new ImageView(imgCircle);
-        circle.setFitWidth(100);
-        circle.setFitHeight(100);
-
-        Button button = availableButtons.get(0);
-        button.setGraphic(circle);
-        button.setState(State.CIRCLE);
     }
 
     public boolean userWin() {
@@ -199,10 +220,14 @@ public class TicTacToe extends Application {
         circle.setFitWidth(100);
         circle.setFitHeight(100);
 
+        Button computerButton;
+
         //        first row
-        if (board[0][0].isCircle() && board[0][1].isCircle() && board[0][2].isEmpty() ) {
+        if (board[0][0].isCircle() && board[0][1].isCircle() && board[0][2].isEmpty()) {
             board[0][2].setState(State.CIRCLE);
             board[0][2].setGraphic(circle);
+            computerButton = board[0][2];
+            computerSelection.add(computerButton);
             System.out.println("LOSE");
             alert.setTitle("Tic Tac Toe");
             alert.setHeaderText("Computer win");
@@ -210,9 +235,11 @@ public class TicTacToe extends Application {
             alert.showAndWait();
             return true;
         }
-        if (board[0][0].isCircle() && board[0][2].isCircle() && board[0][1].isEmpty() ) {
+        if (board[0][0].isCircle() && board[0][2].isCircle() && board[0][1].isEmpty()) {
             board[0][1].setState(State.CIRCLE);
             board[0][1].setGraphic(circle);
+            computerButton = board[0][1];
+            computerSelection.add(computerButton);
             System.out.println("LOSE");
             alert.setTitle("Tic Tac Toe");
             alert.setHeaderText("Computer win");
@@ -220,9 +247,11 @@ public class TicTacToe extends Application {
             alert.showAndWait();
             return true;
         }
-        if (board[0][1].isCircle() && board[0][2].isCircle() && board[0][0].isEmpty() ) {
+        if (board[0][1].isCircle() && board[0][2].isCircle() && board[0][0].isEmpty()) {
             board[0][0].setState(State.CIRCLE);
             board[0][0].setGraphic(circle);
+            computerButton = board[0][0];
+            computerSelection.add(computerButton);
             System.out.println("LOSE");
             alert.setTitle("Tic Tac Toe");
             alert.setHeaderText("Computer win");
@@ -231,9 +260,11 @@ public class TicTacToe extends Application {
             return true;
         }
 //        second row
-        if (board[1][0].isCircle() && board[1][1].isCircle() && board[1][2].isEmpty() ) {
+        if (board[1][0].isCircle() && board[1][1].isCircle() && board[1][2].isEmpty()) {
             board[1][2].setState(State.CIRCLE);
             board[1][2].setGraphic(circle);
+            computerButton = board[1][2];
+            computerSelection.add(computerButton);
             System.out.println("LOSE");
             alert.setTitle("Tic Tac Toe");
             alert.setHeaderText("Computer win");
@@ -241,9 +272,11 @@ public class TicTacToe extends Application {
             alert.showAndWait();
             return true;
         }
-        if (board[1][0].isCircle() && board[1][2].isCircle() && board[1][1].isEmpty() ) {
+        if (board[1][0].isCircle() && board[1][2].isCircle() && board[1][1].isEmpty()) {
             board[1][1].setState(State.CIRCLE);
             board[1][1].setGraphic(circle);
+            computerButton = board[1][1];
+            computerSelection.add(computerButton);
             System.out.println("LOSE");
             alert.setTitle("Tic Tac Toe");
             alert.setHeaderText("Computer win");
@@ -251,9 +284,11 @@ public class TicTacToe extends Application {
             alert.showAndWait();
             return true;
         }
-        if (board[1][1].isCircle() && board[1][2].isCircle() && board[1][0].isEmpty() ) {
+        if (board[1][1].isCircle() && board[1][2].isCircle() && board[1][0].isEmpty()) {
             board[1][0].setState(State.CIRCLE);
             board[1][0].setGraphic(circle);
+            computerButton = board[1][0];
+            computerSelection.add(computerButton);
             System.out.println("LOSE");
             alert.setTitle("Tic Tac Toe");
             alert.setHeaderText("Computer win");
@@ -262,9 +297,11 @@ public class TicTacToe extends Application {
             return true;
         }
 //        third row
-        if (board[2][0].isCircle() && board[2][1].isCircle() && board[2][2].isEmpty() ) {
+        if (board[2][0].isCircle() && board[2][1].isCircle() && board[2][2].isEmpty()) {
             board[2][2].setState(State.CIRCLE);
             board[2][2].setGraphic(circle);
+            computerButton = board[2][2];
+            computerSelection.add(computerButton);
             System.out.println("LOSE");
             alert.setTitle("Tic Tac Toe");
             alert.setHeaderText("Computer win");
@@ -272,9 +309,11 @@ public class TicTacToe extends Application {
             alert.showAndWait();
             return true;
         }
-        if (board[2][0].isCircle() && board[2][2].isCircle() && board[2][1].isEmpty() ) {
+        if (board[2][0].isCircle() && board[2][2].isCircle() && board[2][1].isEmpty()) {
             board[2][1].setState(State.CIRCLE);
             board[2][1].setGraphic(circle);
+            computerButton = board[2][1];
+            computerSelection.add(computerButton);
             System.out.println("LOSE");
             alert.setTitle("Tic Tac Toe");
             alert.setHeaderText("Computer win");
@@ -282,9 +321,11 @@ public class TicTacToe extends Application {
             alert.showAndWait();
             return true;
         }
-        if (board[2][1].isCircle() && board[2][2].isCircle() && board[2][0].isEmpty() ) {
+        if (board[2][1].isCircle() && board[2][2].isCircle() && board[2][0].isEmpty()) {
             board[2][0].setState(State.CIRCLE);
             board[2][0].setGraphic(circle);
+            computerButton = board[2][0];
+            computerSelection.add(computerButton);
             System.out.println("LOSE");
             alert.setTitle("Tic Tac Toe");
             alert.setHeaderText("Computer win");
@@ -293,9 +334,11 @@ public class TicTacToe extends Application {
             return true;
         }
 //        first column
-        if (board[0][0].isCircle() && board[1][0].isCircle() && board[2][0].isEmpty() ) {
+        if (board[0][0].isCircle() && board[1][0].isCircle() && board[2][0].isEmpty()) {
             board[2][0].setState(State.CIRCLE);
             board[2][0].setGraphic(circle);
+            computerButton = board[2][0];
+            computerSelection.add(computerButton);
             System.out.println("LOSE");
             alert.setTitle("Tic Tac Toe");
             alert.setHeaderText("Computer win");
@@ -303,9 +346,11 @@ public class TicTacToe extends Application {
             alert.showAndWait();
             return true;
         }
-        if (board[0][0].isCircle() && board[2][0].isCircle() && board[1][0].isEmpty() ) {
+        if (board[0][0].isCircle() && board[2][0].isCircle() && board[1][0].isEmpty()) {
             board[1][0].setState(State.CIRCLE);
             board[1][0].setGraphic(circle);
+            computerButton = board[1][0];
+            computerSelection.add(computerButton);
             System.out.println("LOSE");
             alert.setTitle("Tic Tac Toe");
             alert.setHeaderText("Computer win");
@@ -313,9 +358,11 @@ public class TicTacToe extends Application {
             alert.showAndWait();
             return true;
         }
-        if (board[1][0].isCircle() && board[2][0].isCircle() && board[0][0].isEmpty() ) {
+        if (board[1][0].isCircle() && board[2][0].isCircle() && board[0][0].isEmpty()) {
             board[0][0].setState(State.CIRCLE);
             board[0][0].setGraphic(circle);
+            computerButton = board[0][0];
+            computerSelection.add(computerButton);
             System.out.println("LOSE");
             alert.setTitle("Tic Tac Toe");
             alert.setHeaderText("Computer win");
@@ -324,9 +371,11 @@ public class TicTacToe extends Application {
             return true;
         }
 //        second column
-        if (board[0][1].isCircle() && board[1][1].isCircle() && board[2][1].isEmpty() ) {
+        if (board[0][1].isCircle() && board[1][1].isCircle() && board[2][1].isEmpty()) {
             board[2][1].setState(State.CIRCLE);
             board[2][1].setGraphic(circle);
+            computerButton = board[2][1];
+            computerSelection.add(computerButton);
             System.out.println("LOSE");
             alert.setTitle("Tic Tac Toe");
             alert.setHeaderText("Computer win");
@@ -334,18 +383,23 @@ public class TicTacToe extends Application {
             alert.showAndWait();
             return true;
         }
-        if (board[0][1].isCircle() && board[2][1].isCircle() && board[1][1].isEmpty() ) {
+        if (board[0][1].isCircle() && board[2][1].isCircle() && board[1][1].isEmpty()) {
             board[1][1].setState(State.CIRCLE);
             board[1][1].setGraphic(circle);
+            computerButton = board[1][1];
+            computerSelection.add(computerButton);
             System.out.println("LOSE");
             alert.setTitle("Tic Tac Toe");
             alert.setHeaderText("Computer win");
             alert.setContentText("Try again");
             alert.showAndWait();
             return true;
-        }if (board[1][1].isCircle() && board[2][1].isCircle() && board[0][1].isEmpty() ) {
+        }
+        if (board[1][1].isCircle() && board[2][1].isCircle() && board[0][1].isEmpty()) {
             board[0][1].setState(State.CIRCLE);
             board[0][1].setGraphic(circle);
+            computerButton = board[0][1];
+            computerSelection.add(computerButton);
             System.out.println("LOSE");
             alert.setTitle("Tic Tac Toe");
             alert.setHeaderText("Computer win");
@@ -354,9 +408,11 @@ public class TicTacToe extends Application {
             return true;
         }
 //        third column
-        if (board[0][2].isCircle() && board[1][2].isCircle() && board[2][2].isEmpty() ) {
+        if (board[0][2].isCircle() && board[1][2].isCircle() && board[2][2].isEmpty()) {
             board[2][2].setState(State.CIRCLE);
             board[2][2].setGraphic(circle);
+            computerButton = board[2][2];
+            computerSelection.add(computerButton);
             System.out.println("LOSE");
             alert.setTitle("Tic Tac Toe");
             alert.setHeaderText("Computer win");
@@ -364,9 +420,11 @@ public class TicTacToe extends Application {
             alert.showAndWait();
             return true;
         }
-        if (board[0][2].isCircle() && board[2][2].isCircle() && board[1][2].isEmpty() ) {
+        if (board[0][2].isCircle() && board[2][2].isCircle() && board[1][2].isEmpty()) {
             board[1][2].setState(State.CIRCLE);
             board[1][2].setGraphic(circle);
+            computerButton = board[1][2];
+            computerSelection.add(computerButton);
             System.out.println("LOSE");
             alert.setTitle("Tic Tac Toe");
             alert.setHeaderText("Computer win");
@@ -374,9 +432,11 @@ public class TicTacToe extends Application {
             alert.showAndWait();
             return true;
         }
-        if (board[1][2].isCircle() && board[2][2].isCircle() && board[0][2].isEmpty() ) {
+        if (board[1][2].isCircle() && board[2][2].isCircle() && board[0][2].isEmpty()) {
             board[0][2].setState(State.CIRCLE);
             board[0][2].setGraphic(circle);
+            computerButton = board[0][2];
+            computerSelection.add(computerButton);
             System.out.println("LOSE");
             alert.setTitle("Tic Tac Toe");
             alert.setHeaderText("Computer win");
@@ -385,9 +445,11 @@ public class TicTacToe extends Application {
             return true;
         }
 //        diagonally
-        if (board[0][0].isCircle() && board[1][1].isCircle() && board[2][2].isEmpty() ) {
+        if (board[0][0].isCircle() && board[1][1].isCircle() && board[2][2].isEmpty()) {
             board[2][2].setState(State.CIRCLE);
             board[2][2].setGraphic(circle);
+            computerButton = board[2][2];
+            computerSelection.add(computerButton);
             System.out.println("LOSE");
             alert.setTitle("Tic Tac Toe");
             alert.setHeaderText("Computer win");
@@ -395,9 +457,11 @@ public class TicTacToe extends Application {
             alert.showAndWait();
             return true;
         }
-        if (board[0][0].isCircle() && board[2][2].isCircle() && board[1][1].isEmpty() ) {
+        if (board[0][0].isCircle() && board[2][2].isCircle() && board[1][1].isEmpty()) {
             board[1][1].setState(State.CIRCLE);
             board[1][1].setGraphic(circle);
+            computerButton = board[1][1];
+            computerSelection.add(computerButton);
             System.out.println("LOSE");
             alert.setTitle("Tic Tac Toe");
             alert.setHeaderText("Computer win");
@@ -405,9 +469,11 @@ public class TicTacToe extends Application {
             alert.showAndWait();
             return true;
         }
-        if (board[1][1].isCircle() && board[2][2].isCircle() && board[0][0].isEmpty() ) {
+        if (board[1][1].isCircle() && board[2][2].isCircle() && board[0][0].isEmpty()) {
             board[0][0].setState(State.CIRCLE);
             board[0][0].setGraphic(circle);
+            computerButton = board[0][0];
+            computerSelection.add(computerButton);
             System.out.println("LOSE");
             alert.setTitle("Tic Tac Toe");
             alert.setHeaderText("Computer win");
@@ -415,9 +481,11 @@ public class TicTacToe extends Application {
             alert.showAndWait();
             return true;
         }
-        if (board[2][0].isCircle() && board[1][1].isCircle() && board[0][2].isEmpty() ) {
+        if (board[2][0].isCircle() && board[1][1].isCircle() && board[0][2].isEmpty()) {
             board[0][2].setState(State.CIRCLE);
             board[0][2].setGraphic(circle);
+            computerButton = board[0][2];
+            computerSelection.add(computerButton);
             System.out.println("LOSE");
             alert.setTitle("Tic Tac Toe");
             alert.setHeaderText("Computer win");
@@ -425,9 +493,11 @@ public class TicTacToe extends Application {
             alert.showAndWait();
             return true;
         }
-        if (board[2][0].isCircle() && board[0][2].isCircle() && board[1][1].isEmpty() ) {
+        if (board[2][0].isCircle() && board[0][2].isCircle() && board[1][1].isEmpty()) {
             board[1][1].setState(State.CIRCLE);
             board[1][1].setGraphic(circle);
+            computerButton = board[1][1];
+            computerSelection.add(computerButton);
             System.out.println("LOSE");
             alert.setTitle("Tic Tac Toe");
             alert.setHeaderText("Computer win");
@@ -435,9 +505,11 @@ public class TicTacToe extends Application {
             alert.showAndWait();
             return true;
         }
-        if (board[1][1].isCircle() && board[0][2].isCircle() && board[2][0].isEmpty() ) {
+        if (board[1][1].isCircle() && board[0][2].isCircle() && board[2][0].isEmpty()) {
             board[2][0].setState(State.CIRCLE);
             board[2][0].setGraphic(circle);
+            computerButton = board[2][0];
+            computerSelection.add(computerButton);
             System.out.println("LOSE");
             alert.setTitle("Tic Tac Toe");
             alert.setHeaderText("Computer win");
@@ -454,146 +526,183 @@ public class TicTacToe extends Application {
         circle.setFitWidth(100);
         circle.setFitHeight(100);
 
+        Button computerButton;
+
 //        first row
-        if (board[0][0].isCross() && board[0][1].isCross() && board[0][2].isEmpty() ) {
+        if (board[0][0].isCross() && board[0][1].isCross() && board[0][2].isEmpty()) {
             board[0][2].setState(State.CIRCLE);
             board[0][2].setGraphic(circle);
+            computerButton = board[0][2];
+            computerSelection.add(computerButton);
             return true;
         }
-        if (board[0][0].isCross() && board[0][2].isCross() && board[0][1].isEmpty() ) {
+        if (board[0][0].isCross() && board[0][2].isCross() && board[0][1].isEmpty()) {
             board[0][1].setState(State.CIRCLE);
             board[0][1].setGraphic(circle);
+            computerButton = board[0][1];
+            computerSelection.add(computerButton);
             return true;
         }
-        if (board[0][1].isCross() && board[0][2].isCross() && board[0][0].isEmpty() ) {
+        if (board[0][1].isCross() && board[0][2].isCross() && board[0][0].isEmpty()) {
             board[0][0].setState(State.CIRCLE);
             board[0][0].setGraphic(circle);
+            computerButton = board[0][0];
+            computerSelection.add(computerButton);
             return true;
         }
 //        second row
-        if (board[1][0].isCross() && board[1][1].isCross() && board[1][2].isEmpty() ) {
+        if (board[1][0].isCross() && board[1][1].isCross() && board[1][2].isEmpty()) {
             board[1][2].setState(State.CIRCLE);
             board[1][2].setGraphic(circle);
+            computerButton = board[1][2];
+            computerSelection.add(computerButton);
             return true;
         }
-        if (board[1][0].isCross() && board[1][2].isCross() && board[1][1].isEmpty() ) {
+        if (board[1][0].isCross() && board[1][2].isCross() && board[1][1].isEmpty()) {
             board[1][1].setState(State.CIRCLE);
             board[1][1].setGraphic(circle);
+            computerButton = board[1][1];
+            computerSelection.add(computerButton);
             return true;
         }
-        if (board[1][1].isCross() && board[1][2].isCross() && board[1][0].isEmpty() ) {
+        if (board[1][1].isCross() && board[1][2].isCross() && board[1][0].isEmpty()) {
             board[1][0].setState(State.CIRCLE);
             board[1][0].setGraphic(circle);
+            computerButton = board[1][0];
+            computerSelection.add(computerButton);
             return true;
         }
 //        third row
-        if (board[2][0].isCross() && board[2][1].isCross() && board[2][2].isEmpty() ) {
+        if (board[2][0].isCross() && board[2][1].isCross() && board[2][2].isEmpty()) {
             board[2][2].setState(State.CIRCLE);
             board[2][2].setGraphic(circle);
+            computerButton = board[2][2];
+            computerSelection.add(computerButton);
             return true;
         }
-        if (board[2][0].isCross() && board[2][2].isCross() && board[2][1].isEmpty() ) {
+        if (board[2][0].isCross() && board[2][2].isCross() && board[2][1].isEmpty()) {
             board[2][1].setState(State.CIRCLE);
             board[2][1].setGraphic(circle);
+            computerButton = board[2][1];
+            computerSelection.add(computerButton);
             return true;
         }
-        if (board[2][1].isCross() && board[2][2].isCross() && board[2][0].isEmpty() ) {
+        if (board[2][1].isCross() && board[2][2].isCross() && board[2][0].isEmpty()) {
             board[2][0].setState(State.CIRCLE);
             board[2][0].setGraphic(circle);
+            computerButton = board[2][0];
+            computerSelection.add(computerButton);
             return true;
         }
 //        first column
-        if (board[0][0].isCross() && board[1][0].isCross() && board[2][0].isEmpty() ) {
+        if (board[0][0].isCross() && board[1][0].isCross() && board[2][0].isEmpty()) {
             board[2][0].setState(State.CIRCLE);
             board[2][0].setGraphic(circle);
+            computerButton = board[2][0];
+            computerSelection.add(computerButton);
             return true;
         }
-        if (board[0][0].isCross() && board[2][0].isCross() && board[1][0].isEmpty() ) {
+        if (board[0][0].isCross() && board[2][0].isCross() && board[1][0].isEmpty()) {
             board[1][0].setState(State.CIRCLE);
             board[1][0].setGraphic(circle);
+            computerButton = board[1][0];
+            computerSelection.add(computerButton);
             return true;
         }
-        if (board[1][0].isCross() && board[2][0].isCross() && board[0][0].isEmpty() ) {
+        if (board[1][0].isCross() && board[2][0].isCross() && board[0][0].isEmpty()) {
             board[0][0].setState(State.CIRCLE);
             board[0][0].setGraphic(circle);
+            computerButton = board[0][0];
+            computerSelection.add(computerButton);
             return true;
         }
 //        second column
-        if (board[0][1].isCross() && board[1][1].isCross() && board[2][1].isEmpty() ) {
+        if (board[0][1].isCross() && board[1][1].isCross() && board[2][1].isEmpty()) {
             board[2][1].setState(State.CIRCLE);
             board[2][1].setGraphic(circle);
+            computerButton = board[2][1];
+            computerSelection.add(computerButton);
             return true;
         }
-        if (board[0][1].isCross() && board[2][1].isCross() && board[1][1].isEmpty() ) {
+        if (board[0][1].isCross() && board[2][1].isCross() && board[1][1].isEmpty()) {
             board[1][1].setState(State.CIRCLE);
             board[1][1].setGraphic(circle);
+            computerButton = board[1][1];
+            computerSelection.add(computerButton);
             return true;
-        }if (board[1][1].isCross() && board[2][1].isCross() && board[0][1].isEmpty() ) {
+        }
+        if (board[1][1].isCross() && board[2][1].isCross() && board[0][1].isEmpty()) {
             board[0][1].setState(State.CIRCLE);
             board[0][1].setGraphic(circle);
+            computerButton = board[0][1];
+            computerSelection.add(computerButton);
             return true;
         }
 //        third column
-        if (board[0][2].isCross() && board[1][2].isCross() && board[2][2].isEmpty() ) {
+        if (board[0][2].isCross() && board[1][2].isCross() && board[2][2].isEmpty()) {
             board[2][2].setState(State.CIRCLE);
             board[2][2].setGraphic(circle);
+            computerButton = board[2][2];
+            computerSelection.add(computerButton);
             return true;
         }
-        if (board[0][2].isCross() && board[2][2].isCross() && board[1][2].isEmpty() ) {
+        if (board[0][2].isCross() && board[2][2].isCross() && board[1][2].isEmpty()) {
             board[1][2].setState(State.CIRCLE);
             board[1][2].setGraphic(circle);
+            computerButton = board[1][2];
+            computerSelection.add(computerButton);
             return true;
         }
-        if (board[1][2].isCross() && board[2][2].isCross() && board[0][2].isEmpty() ) {
+        if (board[1][2].isCross() && board[2][2].isCross() && board[0][2].isEmpty()) {
             board[0][2].setState(State.CIRCLE);
             board[0][2].setGraphic(circle);
+            computerButton = board[0][2];
+            computerSelection.add(computerButton);
             return true;
         }
 //        diagonally
-        if (board[0][0].isCross() && board[1][1].isCross() && board[2][2].isEmpty() ) {
+        if (board[0][0].isCross() && board[1][1].isCross() && board[2][2].isEmpty()) {
             board[2][2].setState(State.CIRCLE);
             board[2][2].setGraphic(circle);
+            computerButton = board[2][2];
+            computerSelection.add(computerButton);
             return true;
         }
-        if (board[0][0].isCross() && board[2][2].isCross() && board[1][1].isEmpty() ) {
+        if (board[0][0].isCross() && board[2][2].isCross() && board[1][1].isEmpty()) {
             board[1][1].setState(State.CIRCLE);
             board[1][1].setGraphic(circle);
+            computerButton = board[1][1];
+            computerSelection.add(computerButton);
             return true;
         }
-        if (board[1][1].isCross() && board[2][2].isCross() && board[0][0].isEmpty() ) {
+        if (board[1][1].isCross() && board[2][2].isCross() && board[0][0].isEmpty()) {
             board[0][0].setState(State.CIRCLE);
             board[0][0].setGraphic(circle);
+            computerButton = board[0][0];
+            computerSelection.add(computerButton);
             return true;
         }
-        if (board[2][0].isCross() && board[1][1].isCross() && board[0][2].isEmpty() ) {
+        if (board[2][0].isCross() && board[1][1].isCross() && board[0][2].isEmpty()) {
             board[0][2].setState(State.CIRCLE);
             board[0][2].setGraphic(circle);
+            computerButton = board[0][2];
+            computerSelection.add(computerButton);
             return true;
         }
-        if (board[2][0].isCross() && board[0][2].isCross() && board[1][1].isEmpty() ) {
+        if (board[2][0].isCross() && board[0][2].isCross() && board[1][1].isEmpty()) {
             board[1][1].setState(State.CIRCLE);
             board[1][1].setGraphic(circle);
+            computerButton = board[1][1];
+            computerSelection.add(computerButton);
             return true;
         }
-        if (board[1][1].isCross() && board[0][2].isCross() && board[2][0].isEmpty() ) {
+        if (board[1][1].isCross() && board[0][2].isCross() && board[2][0].isEmpty()) {
             board[2][0].setState(State.CIRCLE);
             board[2][0].setGraphic(circle);
+            computerButton = board[2][0];
+            computerSelection.add(computerButton);
             return true;
         }
         return false;
     }
-
-//    public boolean draw() {
-//
-//        for (int i = 0; i < board.length; i++) {
-//            for (int j = 0; j < board[i].length; j++) {
-//                if (board[i][j].getState() != State.EMPTY && !computerWin() && !userWin()) {
-//                    board[i][j].setState(State.EMPTY);
-//                    board[i][j].setGraphic(null);
-//                    return true;
-//                }
-//            }
-//        }
-//        return false;
-//    }
 }

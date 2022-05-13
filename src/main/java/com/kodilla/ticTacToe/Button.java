@@ -11,7 +11,7 @@ public class Button extends javafx.scene.control.Button {
         this.x = x;
         this.y = y;
         this.state = State.EMPTY;
-        setStyle("-fx-background-color: #ffffff; -fx-background-radius: 15px; -fx-text-fill: transparent");
+        setStyle("-fx-background-color: #ffffff; -fx-background-radius: 15px; -fx-text-fill: red");
     }
 
     public void setState(State state) {
