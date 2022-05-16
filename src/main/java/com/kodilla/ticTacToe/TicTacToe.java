@@ -1,6 +1,7 @@
 package com.kodilla.ticTacToe;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -111,17 +112,19 @@ public class TicTacToe extends Application {
     List<Button> computerSelection = new ArrayList<>();
 
     public void handleUserClick(Button button) {
+
         if (button.isEmpty()) {
             drawUserSymbol(button);
             userSelection.add(button);
+
             if (userWin()) {
                 clearBoard();
             } else if (isBoardFull()) {
                 handleDraw();
-                System.out.println("DRAW");
+                clearBoard();
+            } else {
+                handleComputerClick();
             }
-
-            handleComputerClick();
         }
     }
 
@@ -131,7 +134,6 @@ public class TicTacToe extends Application {
         alert.setHeaderText("It's a draw!");
         alert.setContentText("Try again!");
         alert.showAndWait();
-        clearBoard();
     }
 
     public boolean isBoardFull() {
@@ -148,15 +150,6 @@ public class TicTacToe extends Application {
         button.setState(State.CROSS);
     }
 
-    private void clearBoard() {
-        for (Button[] buttons : board) {
-            for (Button button : buttons) {
-                button.setState(State.EMPTY);
-                button.setGraphic(null);
-            }
-        }
-    }
-
     public void handleComputerClick() {
         if (computerWin()) {
             clearBoard();
@@ -168,28 +161,27 @@ public class TicTacToe extends Application {
         if (moveMade) {
             return;
         }
-         else {
-            final List<Button> availableButtons = new ArrayList<>();
 
-            for (Button[] buttons : board) {
-                for (Button button : buttons) {
-                    if (button.isEmpty()) {
-                        availableButtons.add(button);
-                    }
+        final List<Button> availableButtons = new ArrayList<>();
+
+        for (Button[] buttons : board) {
+            for (Button button : buttons) {
+                if (button.isEmpty()) {
+                    availableButtons.add(button);
                 }
             }
-
-            Collections.shuffle(availableButtons);
-
-            ImageView circle = new ImageView(imgCircle);
-            circle.setFitWidth(100);
-            circle.setFitHeight(100);
-
-            Button button = availableButtons.get(0);
-            button.setGraphic(circle);
-            button.setState(State.CIRCLE);
-            computerSelection.add(button);
         }
+
+        Collections.shuffle(availableButtons);
+
+        ImageView circle = new ImageView(imgCircle);
+        circle.setFitWidth(100);
+        circle.setFitHeight(100);
+
+        Button button = availableButtons.get(0);
+        button.setGraphic(circle);
+        button.setState(State.CIRCLE);
+        computerSelection.add(button);
     }
 
     public boolean userWin() {
@@ -704,5 +696,17 @@ public class TicTacToe extends Application {
             return true;
         }
         return false;
+    }
+
+    private void clearBoard() {
+
+        for (Button[] buttons : board) {
+            for (Button button : buttons) {
+                button.setState(State.EMPTY);
+                button.setGraphic(null);
+                computerSelection.clear();
+                userSelection.clear();
+            }
+        }
     }
 }
