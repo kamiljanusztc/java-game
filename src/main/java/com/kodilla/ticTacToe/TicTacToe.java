@@ -2,10 +2,12 @@ package com.kodilla.ticTacToe;
 
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -28,11 +30,12 @@ public class TicTacToe extends Application {
     private Button[][] board;
 
     Alert alert = new Alert(Alert.AlertType.INFORMATION);
-    Alert alert1 = new Alert(Alert.AlertType.CONFIRMATION);
 
     public static void main(String[] args) {
         launch(args);
     }
+
+    public boolean isLevelExpert = false;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -92,18 +95,30 @@ public class TicTacToe extends Application {
             }
         }
 
-        alert1.setTitle("TIC TAC TOE");
-        alert1.setHeaderText("Welcome!");
-        alert1.setResizable(false);
-        alert1.setContentText("Would you like to start the game?");
+        levelSelector(primaryStage);
+    }
 
-        Optional<ButtonType> result = alert1.showAndWait();
-        ButtonType buttonStart = result.orElse(ButtonType.CANCEL);
+    private void levelSelector(Stage primaryStage) {
 
-        if (buttonStart == ButtonType.OK) {
-            System.out.println("Ok pressed");
+        Alert alert2 = new Alert(Alert.AlertType.CONFIRMATION);
+        alert2.setTitle("TIC TAC TOE");
+        alert2.setHeaderText("Welcome!");
+        alert2.setContentText("Select the difficulty level");
+
+        ButtonType buttonExpert = new ButtonType("Expert");
+        ButtonType buttonBeginner = new ButtonType("Beginner");
+        ButtonType buttonTypeCancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+
+        alert2.getButtonTypes().setAll(buttonExpert, buttonBeginner, buttonTypeCancel);
+
+        Optional<ButtonType> result = alert2.showAndWait();
+        if (result.get() == buttonExpert) {
+            System.out.println("expert");
+            isLevelExpert = true;
+        } else if (result.get() == buttonBeginner) {
+            System.out.println("beginner");
+            isLevelExpert = false;
         } else {
-            System.out.println("canceled");
             primaryStage.close();
         }
     }
@@ -156,10 +171,12 @@ public class TicTacToe extends Application {
             return;
         }
 
-        boolean moveMade = makeSmartMove();
+        if (isLevelExpert) {
+            boolean moveMade = makeSmartMove();
 
-        if (moveMade) {
-            return;
+            if (moveMade) {
+                return;
+            }
         }
 
         final List<Button> availableButtons = new ArrayList<>();
